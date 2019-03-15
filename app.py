@@ -7,7 +7,8 @@ from sqlalchemy import func
 from flask_admin.contrib.sqla import ModelView
 from flask_login import LoginManager
 from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin, login_required, current_user
-
+from datetime import datetime
+from flask_admin.menu import MenuLink
 
 ############### Config ###############
 # database path
@@ -63,7 +64,9 @@ class Todo(db.Model):
     text = db.Column(db.String(200))
     complete = db.Column(db.Boolean)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    # date_completed = db.Column(db.DateTime, default=datetime.utcnow)
+    date_completed = db.Column(db.DateTime)
+    deadline = db.Column(db.DateTime, default=datetime.utcnow)
+    # completed_on = db.Column(db.DateTime)
 
     def __repr__(self):
         return '<Todo %r>' % self.id
@@ -76,18 +79,16 @@ security = Security(app, user_datastore)
 # Create Admin
 admin = Admin(app, name='ToDo', template_mode='bootstrap3')
 
-# Create a user to test with
-@app.before_first_request
-def create_user():
-    db.create_all()
-    user_datastore.create_user(email='test@test.com', password='test')
-    db.session.commit()
 
 ############### Model Views ###############
 class UserView(ModelView):
     form_columns = ['name', 'email', 'password']
+    # print("Hello")
 
 class TodoView(ModelView):
+
+    column_searchable_list = ['text']
+
     # get current user, display items that match their name
     def get_query(self):
         return self.session.query(self.model).filter(self.model.user_id==current_user.id)
@@ -97,25 +98,24 @@ class TodoView(ModelView):
         return self.session.query(func.count('*')).filter(self.model.user_id==current_user.id)
 
 
+class LoginMenuLink(MenuLink):
+    def is_accessible(self):
+        return not current_user.is_authenticated
+
+class LogoutMenuLink(MenuLink):
+    def is_accessible(self):
+        return current_user.is_authenticated
+
 # admin views
-# admin.add_view(ModelView(User, db.session))
 admin.add_view(UserView(User,db.session))
 admin.add_view(TodoView(Todo, db.session))
-# admin.add_view(ModelView(Todo, db.session))
 admin.add_view(ModelView(Role, db.session))
-# Custom Model View
 
-#     form_columns = ['roles']
-#
-#
-# class IndexView(BaseView):
-#     def index(self):
-#         return self.render(self,'index.html')
-#
-# # Add model views
-# # admin.add_view(IndexView(name='Welcome', url='/'))
-#admin.add_view(UserView(User, db.session))
-#admin.add_view(ModelView(Todo, db.session))
+# admin links
+admin.add_link(LogoutMenuLink(name="Logout", category='', url="/logout"))
+admin.add_link(LoginMenuLink(name='Login', category='', url="/login"))
+
+
 
 ############### Routes ###############
 @app.route('/')
