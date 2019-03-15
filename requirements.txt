@@ -3,3 +3,4 @@ flask_sqlalchemy
 flask_admin
 flask_security
 bcrypt
+flask-wtf
