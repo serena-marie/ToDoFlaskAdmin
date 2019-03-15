@@ -9,6 +9,7 @@ from flask_login import LoginManager
 from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin, login_required, current_user
 from datetime import datetime
 from flask_admin.menu import MenuLink
+from flask_admin.form import SecureForm
 
 ############### Config ###############
 # database path
@@ -82,11 +83,12 @@ admin = Admin(app, name='ToDo', template_mode='bootstrap3')
 
 ############### Model Views ###############
 class UserView(ModelView):
+    form_base_class = SecureForm
     form_columns = ['name', 'email', 'password']
     # print("Hello")
 
 class TodoView(ModelView):
-
+    form_base_class = SecureForm
     column_searchable_list = ['text']
 
     # get current user, display items that match their name
@@ -105,6 +107,8 @@ class LoginMenuLink(MenuLink):
 class LogoutMenuLink(MenuLink):
     def is_accessible(self):
         return current_user.is_authenticated
+
+## Modal
 
 # admin views
 admin.add_view(UserView(User,db.session))
