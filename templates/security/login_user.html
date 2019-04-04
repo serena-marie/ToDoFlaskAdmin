@@ -1,0 +1,28 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+
+  <form class="form-signin" action="/login" method="POST" name="login_user_form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+  <!--   <h1 strong>Welcome to Flask-To-Do!</h1>
+  <img class="mb-4" src="https://cdn0.iconfinder.com/data/icons/harmonicons-02/64/check-box-512.png" alt=""  width="72" height="72"> -->
+    <h1 class="h3 mb-3 font-weight-normal">Please sign in:</h1>
+    <input id="next" name="next" type="hidden" value="/">
+    <label for="email" class="sr-only">Email Address</label>
+    <input name="email" type="email" id="email" class="form-control" placeholder="Email address" required autofocus>
+
+    <label for="password" class="sr-only">Password</label>
+    <input type="password" id="password" name="password" class="form-control" placeholder="Password" value="" required>
+
+    <div class="checkbox mb-3">
+        <label>
+          <input type="checkbox" value="remember-me" id="remember" name="remember"> Remember me
+        </label>
+    </div>
+
+    <button class="btn btn-lg btn-primary btn-block" type="submit" id="submit" name="submit" type="submit">Sign in</button>
+
+    <!-- <a href="/login?next=/">Login</a> -->
+    <p></p>
+    <a href="/register?next=/">Register</a><br/>
+  </form>
+{% endblock %}
